@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TopUpKu — Top Up Diamond Game</title>
+<title>TopUpKu — Top Up Game</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -48,285 +48,161 @@
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border);
   }
-  .logo {
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-  }
+  .logo { font-size: 28px; font-weight: 800; letter-spacing: 0.5px; }
   .logo span { color: var(--purple); }
-  .tagline {
-    font-size: 13px;
+  .tagline { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ===== GAME TABS ===== */
+  .game-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: var(--panel-2);
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .game-tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
     color: var(--muted);
-    margin-top: 4px;
+    transition: all 0.2s;
+  }
+  .game-tab:hover { color: var(--text); }
+  .game-tab.active {
+    background: var(--purple);
+    color: white;
+    box-shadow: 0 2px 8px rgba(139,92,246,0.4);
   }
 
   /* ===== STEP LABEL ===== */
-  .step {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    margin-top: 20px;
-  }
+  .step { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; margin-top: 20px; }
   .step-num {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--purple);
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--purple); color: white;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .step-title {
-    font-size: 14px;
-    font-weight: 700;
-  }
+  .step-title { font-size: 14px; font-weight: 700; }
 
   /* ===== FORM INPUT ===== */
   .form-group { margin-bottom: 12px; }
   .form-row { display: flex; gap: 8px; }
   .form-row .form-group { flex: 1; }
 
-  label {
-    display: block;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
   input[type="text"] {
-    width: 100%;
-    padding: 12px 14px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 14px;
-    outline: none;
+    width: 100%; padding: 12px 14px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-size: 14px; outline: none;
     transition: border 0.2s, box-shadow 0.2s;
   }
-  input[type="text"]:focus {
-    border-color: var(--purple);
-    box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
-  }
+  input[type="text"]:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
   input::placeholder { color: #55556a; }
 
   /* ===== PRODUK GRID ===== */
   .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
   }
   .product {
-    background: var(--panel-2);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 10px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-    position: relative;
-    overflow: hidden;
+    background: var(--panel-2); border: 2px solid var(--border);
+    border-radius: 12px; padding: 14px 10px; cursor: pointer;
+    text-align: center; transition: all 0.15s; position: relative; overflow: hidden;
   }
-  .product:hover {
-    border-color: var(--purple);
-    transform: translateY(-2px);
-  }
+  .product:hover { border-color: var(--purple); transform: translateY(-2px); }
   .product.selected {
     border-color: var(--purple);
     background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05));
     box-shadow: 0 0 0 2px rgba(139,92,246,0.3);
   }
   .product.selected::after {
-    content: '✓';
-    position: absolute;
-    top: 6px;
-    right: 8px;
-    color: var(--purple);
-    font-weight: 900;
-    font-size: 14px;
+    content: '✓'; position: absolute; top: 6px; right: 8px;
+    color: var(--purple); font-weight: 900; font-size: 14px;
   }
-  .product-name {
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .product-price {
-    font-size: 13px;
-    color: var(--green);
-    font-weight: 700;
-  }
+  .product-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .product-price { font-size: 13px; color: var(--green); font-weight: 700; }
   .product-badge {
-    display: inline-block;
-    font-size: 9px;
-    background: var(--red);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 10px;
-    margin-top: 6px;
-    font-weight: 700;
+    display: inline-block; font-size: 9px; background: var(--red); color: white;
+    padding: 2px 6px; border-radius: 10px; margin-top: 6px; font-weight: 700;
   }
 
   /* ===== METODE BAYAR ===== */
-  .pay-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 8px;
-  }
+  .pay-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
   .pay-method {
-    background: var(--panel-2);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 8px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-    font-size: 12px;
-    font-weight: 700;
+    background: var(--panel-2); border: 2px solid var(--border);
+    border-radius: 10px; padding: 12px 8px; cursor: pointer;
+    text-align: center; transition: all 0.15s; font-size: 12px; font-weight: 700;
   }
   .pay-method:hover { border-color: var(--purple); }
-  .pay-method.selected {
-    border-color: var(--purple);
-    background: rgba(139,92,246,0.12);
-    box-shadow: 0 0 0 2px rgba(139,92,246,0.3);
-  }
+  .pay-method.selected { border-color: var(--purple); background: rgba(139,92,246,0.12); box-shadow: 0 0 0 2px rgba(139,92,246,0.3); }
   .pay-icon { font-size: 20px; display: block; margin-bottom: 4px; }
 
   /* ===== SUMMARY ===== */
   .summary {
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-top: 20px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-top: 20px;
   }
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 8px;
-  }
+  .summary-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
   .summary-row:last-child {
-    margin-bottom: 0;
-    padding-top: 10px;
-    border-top: 1px dashed var(--border);
-    font-size: 15px;
-    font-weight: 700;
+    margin-bottom: 0; padding-top: 10px;
+    border-top: 1px dashed var(--border); font-size: 15px; font-weight: 700;
   }
   .summary-row .label { color: var(--muted); }
-  .summary-row .value { font-weight: 700; }
+  .summary-row .value { font-weight: 700; text-align: right; }
   .summary-row.total .value { color: var(--green); font-size: 18px; }
 
   /* ===== TOMBOL BELI ===== */
   .buy-btn {
-    width: 100%;
-    padding: 16px;
-    margin-top: 16px;
+    width: 100%; padding: 16px; margin-top: 16px;
     background: linear-gradient(135deg, var(--purple), var(--purple-dark));
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    letter-spacing: 0.5px;
+    color: white; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 800; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s; letter-spacing: 0.5px;
   }
-  .buy-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(139,92,246,0.4);
-  }
+  .buy-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,0.4); }
   .buy-btn:active { transform: translateY(0); }
-  .buy-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
 
   /* ===== FOOTER ===== */
-  .footer {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 11px;
-    color: var(--muted);
-  }
+  .footer { text-align: center; margin-top: 20px; font-size: 11px; color: var(--muted); }
   .footer a { color: var(--purple); text-decoration: none; }
 
   /* ===== TOAST ===== */
   .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--red);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 700;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    transition: transform 0.3s;
-    z-index: 9999;
-    max-width: 90%;
-    text-align: center;
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--red); color: white; padding: 12px 24px; border-radius: 12px;
+    font-size: 13px; font-weight: 700; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: transform 0.3s; z-index: 9999; max-width: 90%; text-align: center;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
   /* ===== MODAL ===== */
   .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9998;
-    padding: 16px;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center;
+    z-index: 9998; padding: 16px;
   }
   .modal-overlay.show { display: flex; }
   .modal {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    animation: popIn 0.25s ease;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    padding: 24px; max-width: 400px; width: 100%; text-align: center; animation: popIn 0.25s ease;
   }
-  @keyframes popIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
+  @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .modal-icon { font-size: 48px; margin-bottom: 12px; }
   .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .modal-text { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+  .modal-text { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; text-align: left; }
   .modal-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--purple);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-bottom: 8px;
+    width: 100%; padding: 12px; background: var(--purple); color: white;
+    border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+    cursor: pointer; margin-bottom: 8px;
   }
   .modal-btn.wa { background: #25D366; }
   .modal-btn.wa:hover { background: #1da851; }
-  .modal-btn.close {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    margin-bottom: 0;
-  }
+  .modal-btn.close { background: transparent; border: 1px solid var(--border); color: var(--muted); margin-bottom: 0; }
 
   @media (max-width: 480px) {
     .app { padding: 16px; }
@@ -342,7 +218,13 @@
   <!-- HEADER -->
   <div class="header">
     <div class="logo">🎮 TopUp<span>Ku</span></div>
-    <div class="tagline">Top up diamond cepat, murah, terpercaya</div>
+    <div class="tagline">Top up cepat, murah, terpercaya</div>
+  </div>
+
+  <!-- TABS GAME -->
+  <div class="game-tabs">
+    <div class="game-tab active" id="tab-ml" onclick="gantiGame('ml')">Mobile Legends</div>
+    <div class="game-tab" id="tab-ff" onclick="gantiGame('ff')">Free Fire</div>
   </div>
 
   <!-- STEP 1: USER ID -->
@@ -350,21 +232,14 @@
     <div class="step-num">1</div>
     <div class="step-title">Masukkan Data Akun</div>
   </div>
-  <div class="form-row">
-    <div class="form-group">
-      <label>User ID</label>
-      <input type="text" id="userId" placeholder="Contoh: 12345678" inputmode="numeric">
-    </div>
-    <div class="form-group">
-      <label>Zone ID</label>
-      <input type="text" id="zoneId" placeholder="Contoh: 1234" inputmode="numeric">
-    </div>
+  <div class="form-row" id="formAkun">
+    <!-- Diisi via JS -->
   </div>
 
   <!-- STEP 2: PRODUK -->
   <div class="step">
     <div class="step-num">2</div>
-    <div class="step-title">Pilih Nominal Diamond</div>
+    <div class="step-title">Pilih Nominal</div>
   </div>
   <div class="product-grid" id="productGrid"></div>
 
@@ -377,6 +252,10 @@
 
   <!-- SUMMARY -->
   <div class="summary">
+    <div class="summary-row">
+      <span class="label">Game</span>
+      <span class="value" id="sumGame">—</span>
+    </div>
     <div class="summary-row">
       <span class="label">Produk</span>
       <span class="value" id="sumProduct">—</span>
@@ -396,11 +275,11 @@
   </div>
 
   <!-- TOMBOL -->
-  <button class="buy-btn" id="buyBtn" onclick="prosesBeli()">🛒 Beli Sekarang</button>
+  <button class="buy-btn" onclick="prosesBeli()">🛒 Beli Sekarang</button>
 
   <!-- FOOTER -->
   <div class="footer">
-    © 2025 TopUpKu — Demo UI. <a href="#" onclick="alert('Hubungi admin untuk transaksi nyata');return false;">Hubungi Admin</a>
+    © 2025 TopUpKu. <a href="#" onclick="alert('Hubungi admin untuk transaksi nyata');return false;">Hubungi Admin</a>
   </div>
 </div>
 
@@ -420,39 +299,112 @@
 
 <script>
   // ============================================================
-  //  KONFIGURASI — GANTI SESUAI KEBUTUHAN
+  //  KONFIGURASI
   // ============================================================
   const CONFIG = {
     namaToko: 'TopUpKu',
-    // Nomor WhatsApp admin (format internasional tanpa +, contoh 6281234567890)
-    waAdmin: '6281234567890',
-    // Produk diamond
-    produk: [
-      { id: 'd86',  nama: '86 Diamond',   harga: 20000,  badge: '' },
-      { id: 'd172', nama: '172 Diamond',  harga: 38000,  badge: '' },
-      { id: 'd257', nama: '257 Diamond',  harga: 55000,  badge: 'POPULER' },
-      { id: 'd344', nama: '344 Diamond',  harga: 72000,  badge: '' },
-      { id: 'd514', nama: '514 Diamond',  harga: 105000, badge: '' },
-      { id: 'd706', nama: '706 Diamond',  harga: 142000, badge: 'BEST' },
-      { id: 'd1412',nama: '1412 Diamond', harga: 280000, badge: '' },
-      { id: 'd2195',nama: '2195 Diamond', harga: 430000, badge: '' },
-    ],
-    // Metode pembayaran
-    metode: [
-      { id: 'qris',  nama: 'QRIS',      icon: '📱' },
-      { id: 'gopay', nama: 'GoPay',     icon: '💚' },
-      { id: 'ovo',   nama: 'OVO',       icon: '💜' },
-      { id: 'dana',  nama: 'DANA',      icon: '💙' },
-      { id: 'shope', nama: 'ShopeePay', icon: '🧡' },
-      { id: 'bank',  nama: 'Transfer',  icon: '🏦' },
-    ]
+    waAdmin: '6281234567890', // GANTI NOMOR WA ADMIN
   };
+
+  // Data Game & Produk
+  const GAMES = {
+    ml: {
+      nama: 'Mobile Legends',
+      butuhZone: true,
+      produk: [
+        { id: 'ml86',  nama: '86 Diamond',   harga: 20000,  badge: '' },
+        { id: 'ml172', nama: '172 Diamond',  harga: 38000,  badge: '' },
+        { id: 'ml257', nama: '257 Diamond',  harga: 55000,  badge: 'POPULER' },
+        { id: 'ml344', nama: '344 Diamond',  harga: 72000,  badge: '' },
+        { id: 'ml514', nama: '514 Diamond',  harga: 105000, badge: '' },
+        { id: 'ml706', nama: '706 Diamond',  harga: 142000, badge: 'BEST' },
+        { id: 'ml1412',nama: '1412 Diamond', harga: 280000, badge: '' },
+        { id: 'ml2195',nama: '2195 Diamond', harga: 430000, badge: '' },
+      ]
+    },
+    ff: {
+      nama: 'Free Fire',
+      butuhZone: false,
+      produk: [
+        { id: 'ff70',  nama: '70 Diamond',   harga: 10000,  badge: '' },
+        { id: 'ff140', nama: '140 Diamond',  harga: 20000,  badge: '' },
+        { id: 'ff355', nama: '355 Diamond',  harga: 50000,  badge: 'POPULER' },
+        { id: 'ff720', nama: '720 Diamond',  harga: 100000, badge: '' },
+        { id: 'ff1450',nama: '1450 Diamond', harga: 200000, badge: 'BEST' },
+        { id: 'ff2180',nama: '2180 Diamond', harga: 300000, badge: '' },
+        { id: 'ff3640',nama: '3640 Diamond', harga: 500000, badge: '' },
+        { id: 'ff7290',nama: '7290 Diamond', harga: 1000000, badge: '' },
+      ]
+    }
+  };
+
+  const METODE = [
+    { id: 'qris',  nama: 'QRIS',      icon: '📱' },
+    { id: 'gopay', nama: 'GoPay',     icon: '💚' },
+    { id: 'ovo',   nama: 'OVO',       icon: '💜' },
+    { id: 'dana',  nama: 'DANA',      icon: '💙' },
+    { id: 'shope', nama: 'ShopeePay', icon: '🧡' },
+    { id: 'bank',  nama: 'Transfer',  icon: '🏦' },
+  ];
 
   // ============================================================
   //  STATE
   // ============================================================
+  let currentGameKey = 'ml'; // default
   let selectedProduk = null;
   let selectedMetode = null;
+
+  // ============================================================
+  //  GANTI GAME (TABS)
+  // ============================================================
+  function gantiGame(key) {
+    currentGameKey = key;
+    
+    // Update tab active
+    document.getElementById('tab-ml').classList.remove('active');
+    document.getElementById('tab-ff').classList.remove('active');
+    document.getElementById('tab-' + key).classList.add('active');
+
+    // Reset state
+    selectedProduk = null;
+
+    // Render ulang form akun (ML butuh Zone ID, FF tidak)
+    renderFormAkun();
+    
+    // Render produk
+    renderProduk();
+
+    // Update summary
+    updateSummary();
+  }
+
+  // ============================================================
+  //  RENDER FORM AKUN
+  // ============================================================
+  function renderFormAkun() {
+    const game = GAMES[currentGameKey];
+    const container = document.getElementById('formAkun');
+    
+    if (game.butuhZone) {
+      container.innerHTML = `
+        <div class="form-group">
+          <label>User ID</label>
+          <input type="text" id="userId" placeholder="Contoh: 12345678" inputmode="numeric" oninput="updateSummary()">
+        </div>
+        <div class="form-group">
+          <label>Zone ID</label>
+          <input type="text" id="zoneId" placeholder="Contoh: 1234" inputmode="numeric" oninput="updateSummary()">
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="form-group">
+          <label>Player ID / User ID</label>
+          <input type="text" id="userId" placeholder="Masukkan ID Free Fire" inputmode="numeric" oninput="updateSummary()">
+        </div>
+      `;
+    }
+  }
 
   // ============================================================
   //  RENDER PRODUK
@@ -460,7 +412,9 @@
   function renderProduk() {
     const grid = document.getElementById('productGrid');
     grid.innerHTML = '';
-    CONFIG.produk.forEach(p => {
+    const produkList = GAMES[currentGameKey].produk;
+    
+    produkList.forEach(p => {
       const div = document.createElement('div');
       div.className = 'product';
       div.dataset.id = p.id;
@@ -480,7 +434,7 @@
   function renderMetode() {
     const grid = document.getElementById('payGrid');
     grid.innerHTML = '';
-    CONFIG.metode.forEach(m => {
+    METODE.forEach(m => {
       const div = document.createElement('div');
       div.className = 'pay-method';
       div.dataset.id = m.id;
@@ -514,13 +468,17 @@
   //  UPDATE SUMMARY
   // ============================================================
   function updateSummary() {
+    document.getElementById('sumGame').textContent = GAMES[currentGameKey].nama;
     document.getElementById('sumProduct').textContent = selectedProduk ? selectedProduk.nama : '—';
     document.getElementById('sumPay').textContent = selectedMetode ? selectedMetode.nama : '—';
 
-    const uid = document.getElementById('userId').value.trim();
-    const zid = document.getElementById('zoneId').value.trim();
+    let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
+    let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
+    
     let target = '—';
-    if (uid) target = uid + (zid ? ` (${zid})` : '');
+    if (uid) {
+      target = uid + (zid ? ` (${zid})` : '');
+    }
     document.getElementById('sumTarget').textContent = target;
 
     const total = selectedProduk ? selectedProduk.harga : 0;
@@ -548,18 +506,19 @@
   //  PROSES BELI
   // ============================================================
   function prosesBeli() {
-    const uid = document.getElementById('userId').value.trim();
-    const zid = document.getElementById('zoneId').value.trim();
+    let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
+    let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
 
-    if (!uid) return showToast('⚠️ User ID wajib diisi!');
-    if (!selectedProduk) return showToast('⚠️ Pilih nominal diamond dulu!');
+    if (!uid) return showToast('⚠️ User / Player ID wajib diisi!');
+    if (!selectedProduk) return showToast('⚠️ Pilih nominal dulu!');
     if (!selectedMetode) return showToast('⚠️ Pilih metode pembayaran!');
 
-    // Tampilkan modal konfirmasi
     const total = formatRupiah(selectedProduk.harga);
     const target = uid + (zid ? ` (${zid})` : '');
+    
     document.getElementById('modalText').innerHTML = `
-      <strong>${selectedProduk.nama}</strong><br>
+      <strong>${GAMES[currentGameKey].nama}</strong><br>
+      Produk: ${selectedProduk.nama}<br>
       Tujuan: ${target}<br>
       Metode: ${selectedMetode.nama}<br>
       Total: <strong style="color:#22c55e">Rp ${total}</strong>
@@ -571,13 +530,14 @@
   //  KIRIM WHATSAPP
   // ============================================================
   function kirimWA() {
-    const uid = document.getElementById('userId').value.trim();
-    const zid = document.getElementById('zoneId').value.trim();
+    let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
+    let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
 
     const pesan =
       `Halo ${CONFIG.namaToko}! Saya mau top up:%0A%0A` +
-      `🎮 Produk: ${selectedProduk.nama}%0A` +
-      `🆔 User ID: ${uid}${zid ? `%0A🌐 Zone ID: ${zid}` : ''}%0A` +
+      `🎮 Game: ${GAMES[currentGameKey].nama}%0A` +
+      `📦 Produk: ${selectedProduk.nama}%0A` +
+      `🆔 ID: ${uid}${zid ? `%0A🌐 Zone: ${zid}` : ''}%0A` +
       `💳 Metode: ${selectedMetode.nama}%0A` +
       `💰 Total: Rp ${formatRupiah(selectedProduk.harga)}%0A%0A` +
       `Mohon diproses ya. Terima kasih!`;
@@ -595,17 +555,10 @@
   }
 
   // ============================================================
-  //  EVENT: UPDATE SUMMARY SAAT NGETIK
-  // ============================================================
-  document.getElementById('userId').addEventListener('input', updateSummary);
-  document.getElementById('zoneId').addEventListener('input', updateSummary);
-
-  // ============================================================
   //  INIT
   // ============================================================
-  renderProduk();
   renderMetode();
-  updateSummary();
+  gantiGame('ml'); // Load ML pertama kali
 </script>
 </body>
 </html>
