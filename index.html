@@ -291,7 +291,7 @@
   </div>
 
   <!-- TOMBOL -->
-  <button class="buy-btn" onclick="prosesBeli()">🛒 Beli Sekarang</button>
+  <button class="buy-btn" id="buyBtn" onclick="prosesBeli()">🛒 Beli Sekarang</button>
 
   <!-- FOOTER -->
   <div class="footer">
@@ -320,7 +320,6 @@
   const CONFIG = {
     namaToko: 'TopUpKu',
     waAdmin: '6281234567890', // GANTI DENGAN NOMOR WA KAMU
-    // URL CLOUDFLARE WORKER KAMU
     workerFFUrl: 'https://ff-nickname-checker.bobradikari.workers.dev' 
   };
 
@@ -368,17 +367,17 @@
   // ============================================================
   //  STATE APLIKASI
   // ============================================================
-  let currentGameKey = 'ml'; // Default game
+  let currentGameKey = 'ml';
   let selectedProduk = null;
   let selectedMetode = null;
-  let ffNickname = ''; // Variabel buat nyimpen nickname FF
+  let ffNickname = ''; 
 
   // ============================================================
-  //  FUNGSI GANTI GAME (KARTU)
+  //  FUNGSI GANTI GAME
   // ============================================================
   function gantiGame(key) {
     currentGameKey = key;
-    ffNickname = ''; // Reset nickname tiap ganti game
+    ffNickname = ''; 
     
     document.getElementById('card-ml').classList.remove('active');
     document.getElementById('card-ff').classList.remove('active');
@@ -391,7 +390,7 @@
   }
 
   // ============================================================
-  //  RENDER FORM AKUN (DENGAN CEK NICKNAME OTOMATIS)
+  //  RENDER FORM AKUN
   // ============================================================
   function renderFormAkun() {
     const game = GAMES[currentGameKey];
@@ -421,7 +420,7 @@
   }
 
   // ============================================================
-  //  FUNGSI CEK NICKNAME KE CLOUDFLARE WORKER
+  //  FUNGSI CEK NICKNAME
   // ============================================================
   async function cekNicknameFF(uid) {
     if (!uid || !/^\d+$/.test(uid)) {
@@ -493,9 +492,6 @@
     });
   }
 
-  // ============================================================
-  //  FUNGSI PILIH PRODUK & METODE
-  // ============================================================
   function pilihProduk(p, el) {
     selectedProduk = p;
     document.querySelectorAll('.product').forEach(x => x.classList.remove('selected'));
@@ -511,7 +507,7 @@
   }
 
   // ============================================================
-  //  UPDATE RINGKASAN (SUMMARY)
+  //  UPDATE RINGKASAN
   // ============================================================
   function updateSummary() {
     document.getElementById('sumGame').textContent = GAMES[currentGameKey].nama;
@@ -550,15 +546,35 @@
   }
 
   // ============================================================
-  //  PROSES BELI & KIRIM WA
+  //  PROSES BELI (PAKSA CEK NICKNAME)
   // ============================================================
-  function prosesBeli() {
+  async function prosesBeli() {
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
 
     if (!uid) return showToast('⚠️ User / Player ID wajib diisi!');
     if (!selectedProduk) return showToast('⚠️ Pilih nominal dulu!');
     if (!selectedMetode) return showToast('⚠️ Pilih metode pembayaran!');
+
+    // JIKA FREE FIRE DAN NICKNAME KOSONG, PAKSA CEK DULU SEBELUM MODAL MUNCUL
+    if (currentGameKey === 'ff' && !ffNickname) {
+      showToast('⏳ Sedang mengecek Nickname...');
+      
+      // Nonaktifkan tombol sementara biar user nggak spam klik
+      const btn = document.getElementById('buyBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Loading...';
+      btn.disabled = true;
+
+      await cekNicknameFF(uid); 
+      
+      // Balikin tombol
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+
+      // Kalau setelah dicek tetap ga dapet nickname, kita tetep lanjut (atau bisa di-block)
+      // if (!ffNickname) return showToast('❌ Gagal mendapatkan nickname. Cek ID kamu.');
+    }
 
     const total = formatRupiah(selectedProduk.harga);
     
@@ -578,6 +594,9 @@
     document.getElementById('modal').classList.add('show');
   }
 
+  // ============================================================
+  //  KIRIM WA
+  // ============================================================
   function kirimWA() {
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
@@ -606,10 +625,10 @@
   }
 
   // ============================================================
-  //  INISIALISASI SAAT HALAMAN DIBUKA
+  //  INISIALISASI
   // ============================================================
   renderMetode();
-  gantiGame('ml'); // Memuat game default (Mobile Legends)
+  gantiGame('ml');
 </script>
 </body>
 </html>
