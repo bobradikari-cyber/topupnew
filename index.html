@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TopUpKu — Top Up Diamond Game</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d12;
+    --panel: #17171f;
+    --panel-2: #1f1f2b;
+    --border: #2c2c3a;
+    --text: #f1f1f7;
+    --muted: #9a9ab0;
+    --purple: #8b5cf6;
+    --purple-dark: #6d28d9;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: radial-gradient(circle at top, #1a1a2e 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 640px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--purple); }
+  .tagline {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ===== STEP LABEL ===== */
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    margin-top: 20px;
+  }
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--purple);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-title {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ===== FORM INPUT ===== */
+  .form-group { margin-bottom: 12px; }
+  .form-row { display: flex; gap: 8px; }
+  .form-row .form-group { flex: 1; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+  input[type="text"]:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+  }
+  input::placeholder { color: #55556a; }
+
+  /* ===== PRODUK GRID ===== */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .product {
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .product:hover {
+    border-color: var(--purple);
+    transform: translateY(-2px);
+  }
+  .product.selected {
+    border-color: var(--purple);
+    background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05));
+    box-shadow: 0 0 0 2px rgba(139,92,246,0.3);
+  }
+  .product.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    color: var(--purple);
+    font-weight: 900;
+    font-size: 14px;
+  }
+  .product-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .product-price {
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 700;
+  }
+  .product-badge {
+    display: inline-block;
+    font-size: 9px;
+    background: var(--red);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-top: 6px;
+    font-weight: 700;
+  }
+
+  /* ===== METODE BAYAR ===== */
+  .pay-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  .pay-method {
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .pay-method:hover { border-color: var(--purple); }
+  .pay-method.selected {
+    border-color: var(--purple);
+    background: rgba(139,92,246,0.12);
+    box-shadow: 0 0 0 2px rgba(139,92,246,0.3);
+  }
+  .pay-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+  /* ===== SUMMARY ===== */
+  .summary {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 20px;
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .summary-row:last-child {
+    margin-bottom: 0;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .summary-row .label { color: var(--muted); }
+  .summary-row .value { font-weight: 700; }
+  .summary-row.total .value { color: var(--green); font-size: 18px; }
+
+  /* ===== TOMBOL BELI ===== */
+  .buy-btn {
+    width: 100%;
+    padding: 16px;
+    margin-top: 16px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .buy-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139,92,246,0.4);
+  }
+  .buy-btn:active { transform: translateY(0); }
+  .buy-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .footer a { color: var(--purple); text-decoration: none; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--red);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: transform 0.3s;
+    z-index: 9999;
+    max-width: 90%;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    padding: 16px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    animation: popIn 0.25s ease;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-icon { font-size: 48px; margin-bottom: 12px; }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .modal-text { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+  .modal-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .modal-btn.wa { background: #25D366; }
+  .modal-btn.wa:hover { background: #1da851; }
+  .modal-btn.close {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 480px) {
+    .app { padding: 16px; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+    .logo { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">🎮 TopUp<span>Ku</span></div>
+    <div class="tagline">Top up diamond cepat, murah, terpercaya</div>
+  </div>
+
+  <!-- STEP 1: USER ID -->
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-title">Masukkan Data Akun</div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>User ID</label>
+      <input type="text" id="userId" placeholder="Contoh: 12345678" inputmode="numeric">
+    </div>
+    <div class="form-group">
+      <label>Zone ID</label>
+      <input type="text" id="zoneId" placeholder="Contoh: 1234" inputmode="numeric">
+    </div>
+  </div>
+
+  <!-- STEP 2: PRODUK -->
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-title">Pilih Nominal Diamond</div>
+  </div>
+  <div class="product-grid" id="productGrid"></div>
+
+  <!-- STEP 3: METODE BAYAR -->
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-title">Pilih Metode Pembayaran</div>
+  </div>
+  <div class="pay-grid" id="payGrid"></div>
+
+  <!-- SUMMARY -->
+  <div class="summary">
+    <div class="summary-row">
+      <span class="label">Produk</span>
+      <span class="value" id="sumProduct">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="label">Tujuan</span>
+      <span class="value" id="sumTarget">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="label">Metode Bayar</span>
+      <span class="value" id="sumPay">—</span>
+    </div>
+    <div class="summary-row total">
+      <span class="label">Total Bayar</span>
+      <span class="value" id="sumTotal">Rp 0</span>
+    </div>
+  </div>
+
+  <!-- TOMBOL -->
+  <button class="buy-btn" id="buyBtn" onclick="prosesBeli()">🛒 Beli Sekarang</button>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    © 2025 TopUpKu — Demo UI. <a href="#" onclick="alert('Hubungi admin untuk transaksi nyata');return false;">Hubungi Admin</a>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL KONFIRMASI -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title">Konfirmasi Pesanan</div>
+    <div class="modal-text" id="modalText"></div>
+    <button class="modal-btn wa" onclick="kirimWA()">📱 Kirim ke WhatsApp</button>
+    <button class="modal-btn close" onclick="tutupModal()">Batal</button>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  //  KONFIGURASI — GANTI SESUAI KEBUTUHAN
+  // ============================================================
+  const CONFIG = {
+    namaToko: 'TopUpKu',
+    // Nomor WhatsApp admin (format internasional tanpa +, contoh 6281234567890)
+    waAdmin: '6281234567890',
+    // Produk diamond
+    produk: [
+      { id: 'd86',  nama: '86 Diamond',   harga: 20000,  badge: '' },
+      { id: 'd172', nama: '172 Diamond',  harga: 38000,  badge: '' },
+      { id: 'd257', nama: '257 Diamond',  harga: 55000,  badge: 'POPULER' },
+      { id: 'd344', nama: '344 Diamond',  harga: 72000,  badge: '' },
+      { id: 'd514', nama: '514 Diamond',  harga: 105000, badge: '' },
+      { id: 'd706', nama: '706 Diamond',  harga: 142000, badge: 'BEST' },
+      { id: 'd1412',nama: '1412 Diamond', harga: 280000, badge: '' },
+      { id: 'd2195',nama: '2195 Diamond', harga: 430000, badge: '' },
+    ],
+    // Metode pembayaran
+    metode: [
+      { id: 'qris',  nama: 'QRIS',      icon: '📱' },
+      { id: 'gopay', nama: 'GoPay',     icon: '💚' },
+      { id: 'ovo',   nama: 'OVO',       icon: '💜' },
+      { id: 'dana',  nama: 'DANA',      icon: '💙' },
+      { id: 'shope', nama: 'ShopeePay', icon: '🧡' },
+      { id: 'bank',  nama: 'Transfer',  icon: '🏦' },
+    ]
+  };
+
+  // ============================================================
+  //  STATE
+  // ============================================================
+  let selectedProduk = null;
+  let selectedMetode = null;
+
+  // ============================================================
+  //  RENDER PRODUK
+  // ============================================================
+  function renderProduk() {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+    CONFIG.produk.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'product';
+      div.dataset.id = p.id;
+      div.innerHTML = `
+        <div class="product-name">${p.nama}</div>
+        <div class="product-price">Rp ${formatRupiah(p.harga)}</div>
+        ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ''}
+      `;
+      div.onclick = () => pilihProduk(p, div);
+      grid.appendChild(div);
+    });
+  }
+
+  // ============================================================
+  //  RENDER METODE BAYAR
+  // ============================================================
+  function renderMetode() {
+    const grid = document.getElementById('payGrid');
+    grid.innerHTML = '';
+    CONFIG.metode.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'pay-method';
+      div.dataset.id = m.id;
+      div.innerHTML = `<span class="pay-icon">${m.icon}</span>${m.nama}`;
+      div.onclick = () => pilihMetode(m, div);
+      grid.appendChild(div);
+    });
+  }
+
+  // ============================================================
+  //  PILIH PRODUK
+  // ============================================================
+  function pilihProduk(p, el) {
+    selectedProduk = p;
+    document.querySelectorAll('.product').forEach(x => x.classList.remove('selected'));
+    el.classList.add('selected');
+    updateSummary();
+  }
+
+  // ============================================================
+  //  PILIH METODE
+  // ============================================================
+  function pilihMetode(m, el) {
+    selectedMetode = m;
+    document.querySelectorAll('.pay-method').forEach(x => x.classList.remove('selected'));
+    el.classList.add('selected');
+    updateSummary();
+  }
+
+  // ============================================================
+  //  UPDATE SUMMARY
+  // ============================================================
+  function updateSummary() {
+    document.getElementById('sumProduct').textContent = selectedProduk ? selectedProduk.nama : '—';
+    document.getElementById('sumPay').textContent = selectedMetode ? selectedMetode.nama : '—';
+
+    const uid = document.getElementById('userId').value.trim();
+    const zid = document.getElementById('zoneId').value.trim();
+    let target = '—';
+    if (uid) target = uid + (zid ? ` (${zid})` : '');
+    document.getElementById('sumTarget').textContent = target;
+
+    const total = selectedProduk ? selectedProduk.harga : 0;
+    document.getElementById('sumTotal').textContent = 'Rp ' + formatRupiah(total);
+  }
+
+  // ============================================================
+  //  FORMAT RUPIAH
+  // ============================================================
+  function formatRupiah(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  // ============================================================
+  //  TOAST
+  // ============================================================
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ============================================================
+  //  PROSES BELI
+  // ============================================================
+  function prosesBeli() {
+    const uid = document.getElementById('userId').value.trim();
+    const zid = document.getElementById('zoneId').value.trim();
+
+    if (!uid) return showToast('⚠️ User ID wajib diisi!');
+    if (!selectedProduk) return showToast('⚠️ Pilih nominal diamond dulu!');
+    if (!selectedMetode) return showToast('⚠️ Pilih metode pembayaran!');
+
+    // Tampilkan modal konfirmasi
+    const total = formatRupiah(selectedProduk.harga);
+    const target = uid + (zid ? ` (${zid})` : '');
+    document.getElementById('modalText').innerHTML = `
+      <strong>${selectedProduk.nama}</strong><br>
+      Tujuan: ${target}<br>
+      Metode: ${selectedMetode.nama}<br>
+      Total: <strong style="color:#22c55e">Rp ${total}</strong>
+    `;
+    document.getElementById('modal').classList.add('show');
+  }
+
+  // ============================================================
+  //  KIRIM WHATSAPP
+  // ============================================================
+  function kirimWA() {
+    const uid = document.getElementById('userId').value.trim();
+    const zid = document.getElementById('zoneId').value.trim();
+
+    const pesan =
+      `Halo ${CONFIG.namaToko}! Saya mau top up:%0A%0A` +
+      `🎮 Produk: ${selectedProduk.nama}%0A` +
+      `🆔 User ID: ${uid}${zid ? `%0A🌐 Zone ID: ${zid}` : ''}%0A` +
+      `💳 Metode: ${selectedMetode.nama}%0A` +
+      `💰 Total: Rp ${formatRupiah(selectedProduk.harga)}%0A%0A` +
+      `Mohon diproses ya. Terima kasih!`;
+
+    const url = `https://wa.me/${CONFIG.waAdmin}?text=${pesan}`;
+    window.open(url, '_blank');
+    tutupModal();
+  }
+
+  // ============================================================
+  //  TUTUP MODAL
+  // ============================================================
+  function tutupModal() {
+    document.getElementById('modal').classList.remove('show');
+  }
+
+  // ============================================================
+  //  EVENT: UPDATE SUMMARY SAAT NGETIK
+  // ============================================================
+  document.getElementById('userId').addEventListener('input', updateSummary);
+  document.getElementById('zoneId').addEventListener('input', updateSummary);
+
+  // ============================================================
+  //  INIT
+  // ============================================================
+  renderProduk();
+  renderMetode();
+  updateSummary();
+</script>
+</body>
+</html>
