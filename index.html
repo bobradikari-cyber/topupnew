@@ -320,6 +320,8 @@
   const CONFIG = {
     namaToko: 'TopUpKu',
     waAdmin: '6281234567890', // GANTI DENGAN NOMOR WA KAMU
+    // URL CLOUDFLARE WORKER KAMU
+    workerFFUrl: 'https://ff-nickname-checker.bobradikari.workers.dev' 
   };
 
   // DATA GAME & PRODUK
@@ -369,40 +371,33 @@
   let currentGameKey = 'ml'; // Default game
   let selectedProduk = null;
   let selectedMetode = null;
+  let ffNickname = ''; // Variabel buat nyimpen nickname FF
 
   // ============================================================
   //  FUNGSI GANTI GAME (KARTU)
   // ============================================================
   function gantiGame(key) {
     currentGameKey = key;
+    ffNickname = ''; // Reset nickname tiap ganti game
     
-    // Update tampilan kartu aktif
     document.getElementById('card-ml').classList.remove('active');
     document.getElementById('card-ff').classList.remove('active');
     document.getElementById('card-' + key).classList.add('active');
 
-    // Reset pilihan produk
     selectedProduk = null;
-
-    // Render ulang form (ML pakai Zone, FF tidak)
     renderFormAkun();
-    
-    // Render ulang produk
     renderProduk();
-
-    // Update ringkasan
     updateSummary();
   }
 
   // ============================================================
-  //  RENDER FORM AKUN (DENGAN NICKNAME)
+  //  RENDER FORM AKUN (DENGAN CEK NICKNAME OTOMATIS)
   // ============================================================
   function renderFormAkun() {
     const game = GAMES[currentGameKey];
     const container = document.getElementById('formAkun');
     
     if (game.butuhZone) {
-      // Mobile Legends (User ID, Zone ID, Nickname)
       container.innerHTML = `
         <div class="form-group" style="flex: 1; min-width: 120px;">
           <label>User ID</label>
@@ -412,24 +407,52 @@
           <label>Zone ID</label>
           <input type="text" id="zoneId" placeholder="Contoh: 1234" inputmode="numeric" oninput="updateSummary()">
         </div>
-        <div class="form-group full">
-          <label>Nickname (Opsional)</label>
-          <input type="text" id="nickname" placeholder="Contoh: ProPlayer" oninput="updateSummary()">
-        </div>
       `;
     } else {
-      // Free Fire (Player ID, Nickname)
       container.innerHTML = `
         <div class="form-group full">
-          <label>Player ID / User ID</label>
-          <input type="text" id="userId" placeholder="Masukkan ID Free Fire" inputmode="numeric" oninput="updateSummary()">
-        </div>
-        <div class="form-group full">
-          <label>Nickname (Opsional)</label>
-          <input type="text" id="nickname" placeholder="Contoh: SultanFF" oninput="updateSummary()">
+          <label>Player ID Free Fire</label>
+          <input type="text" id="userId" placeholder="Masukkan ID Free Fire" inputmode="numeric" 
+                 oninput="updateSummary()" onblur="cekNicknameFF(this.value)">
+          <div id="nicknameStatus" style="font-size: 11px; color: var(--green); margin-top: 4px; height: 14px;"></div>
         </div>
       `;
     }
+  }
+
+  // ============================================================
+  //  FUNGSI CEK NICKNAME KE CLOUDFLARE WORKER
+  // ============================================================
+  async function cekNicknameFF(uid) {
+    if (!uid || !/^\d+$/.test(uid)) {
+      document.getElementById('nicknameStatus').textContent = '';
+      ffNickname = '';
+      return;
+    }
+
+    const statusEl = document.getElementById('nicknameStatus');
+    statusEl.style.color = 'var(--muted)';
+    statusEl.textContent = '⏳ Mencari nickname...';
+    ffNickname = '';
+
+    try {
+      const response = await fetch(`${CONFIG.workerFFUrl}?id=${uid}`);
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        ffNickname = data.nickname;
+        statusEl.style.color = 'var(--green)';
+        statusEl.textContent = `✅ ${data.nickname}`;
+      } else {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = `❌ ${data.message || 'Gagal cek nickname'}`;
+      }
+    } catch (err) {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = '❌ Gagal koneksi ke server.';
+      console.error(err);
+    }
+    updateSummary();
   }
 
   // ============================================================
@@ -497,13 +520,14 @@
 
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
-    let nick = document.getElementById('nickname') ? document.getElementById('nickname').value.trim() : '';
     
     let target = '—';
     if (uid) {
       target = uid;
       if (zid) target += ` (${zid})`;
-      if (nick) target += ` - ${nick}`;
+      if (currentGameKey === 'ff' && ffNickname) {
+        target += ` - ${ffNickname}`;
+      }
     }
     document.getElementById('sumTarget').textContent = target;
 
@@ -531,14 +555,18 @@
   function prosesBeli() {
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
-    let nick = document.getElementById('nickname') ? document.getElementById('nickname').value.trim() : '';
 
     if (!uid) return showToast('⚠️ User / Player ID wajib diisi!');
     if (!selectedProduk) return showToast('⚠️ Pilih nominal dulu!');
     if (!selectedMetode) return showToast('⚠️ Pilih metode pembayaran!');
 
     const total = formatRupiah(selectedProduk.harga);
-    let target = uid + (zid ? ` (${zid})` : '') + (nick ? ` - ${nick}` : '');
+    
+    let target = uid;
+    if (zid) target += ` (${zid})`;
+    if (currentGameKey === 'ff' && ffNickname) {
+      target += ` - ${ffNickname}`;
+    }
     
     document.getElementById('modalText').innerHTML = `
       <strong>${GAMES[currentGameKey].nama}</strong><br>
@@ -553,13 +581,17 @@
   function kirimWA() {
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
-    let nick = document.getElementById('nickname') ? document.getElementById('nickname').value.trim() : '';
+
+    let targetText = `${uid}${zid ? ` (${zid})` : ''}`;
+    if (currentGameKey === 'ff' && ffNickname) {
+      targetText += ` (Nickname: ${ffNickname})`;
+    }
 
     const pesan =
       `Halo ${CONFIG.namaToko}! Saya mau top up:%0A%0A` +
       `🎮 Game: ${GAMES[currentGameKey].nama}%0A` +
       `📦 Produk: ${selectedProduk.nama}%0A` +
-      `🆔 ID: ${uid}${zid ? `%0A🌐 Zone: ${zid}` : ''}${nick ? `%0A👤 Nick: ${nick}` : ''}%0A` +
+      `🆔 Tujuan: ${targetText}%0A` +
       `💳 Metode: ${selectedMetode.nama}%0A` +
       `💰 Total: Rp ${formatRupiah(selectedProduk.harga)}%0A%0A` +
       `Mohon diproses ya. Terima kasih!`;
