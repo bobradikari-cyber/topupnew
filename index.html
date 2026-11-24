@@ -52,34 +52,6 @@
   .logo span { color: var(--purple); }
   .tagline { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-  /* ===== GAME TABS ===== */
-  .game-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    background: var(--panel-2);
-    padding: 6px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-  }
-  .game-tab {
-    flex: 1;
-    padding: 10px;
-    text-align: center;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    color: var(--muted);
-    transition: all 0.2s;
-  }
-  .game-tab:hover { color: var(--text); }
-  .game-tab.active {
-    background: var(--purple);
-    color: white;
-    box-shadow: 0 2px 8px rgba(139,92,246,0.4);
-  }
-
   /* ===== STEP LABEL ===== */
   .step { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; margin-top: 20px; }
   .step-num {
@@ -89,6 +61,44 @@
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .step-title { font-size: 14px; font-weight: 700; }
+
+  /* ===== GAME CARDS ===== */
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .game-card {
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-card:hover {
+    border-color: var(--purple);
+    transform: translateY(-2px);
+  }
+  .game-card.active {
+    border-color: var(--purple);
+    background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05));
+    box-shadow: 0 0 0 2px rgba(139,92,246,0.3);
+  }
+  .game-card.active::after {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    color: var(--purple);
+    font-weight: 900;
+    font-size: 16px;
+  }
+  .game-icon { font-size: 32px; margin-bottom: 8px; }
+  .game-name { font-size: 14px; font-weight: 700; }
 
   /* ===== FORM INPUT ===== */
   .form-group { margin-bottom: 12px; }
@@ -208,6 +218,8 @@
     .app { padding: 16px; }
     .product-grid { grid-template-columns: repeat(2, 1fr); }
     .logo { font-size: 24px; }
+    .game-icon { font-size: 28px; }
+    .game-name { font-size: 12px; }
   }
 </style>
 </head>
@@ -221,31 +233,41 @@
     <div class="tagline">Top up cepat, murah, terpercaya</div>
   </div>
 
-  <!-- TABS GAME -->
-  <div class="game-tabs">
-    <div class="game-tab active" id="tab-ml" onclick="gantiGame('ml')">Mobile Legends</div>
-    <div class="game-tab" id="tab-ff" onclick="gantiGame('ff')">Free Fire</div>
-  </div>
-
-  <!-- STEP 1: USER ID -->
+  <!-- STEP 1: PILIH GAME -->
   <div class="step">
     <div class="step-num">1</div>
+    <div class="step-title">Pilih Game</div>
+  </div>
+  <div class="game-grid">
+    <div class="game-card active" id="card-ml" onclick="gantiGame('ml')">
+      <div class="game-icon">⚔️</div>
+      <div class="game-name">Mobile Legends</div>
+    </div>
+    <div class="game-card" id="card-ff" onclick="gantiGame('ff')">
+      <div class="game-icon">🔥</div>
+      <div class="game-name">Free Fire</div>
+    </div>
+  </div>
+
+  <!-- STEP 2: DATA AKUN -->
+  <div class="step">
+    <div class="step-num">2</div>
     <div class="step-title">Masukkan Data Akun</div>
   </div>
   <div class="form-row" id="formAkun">
-    <!-- Diisi via JS -->
+    <!-- Form diisi otomatis via JS -->
   </div>
 
-  <!-- STEP 2: PRODUK -->
+  <!-- STEP 3: PRODUK -->
   <div class="step">
-    <div class="step-num">2</div>
+    <div class="step-num">3</div>
     <div class="step-title">Pilih Nominal</div>
   </div>
   <div class="product-grid" id="productGrid"></div>
 
-  <!-- STEP 3: METODE BAYAR -->
+  <!-- STEP 4: METODE BAYAR -->
   <div class="step">
-    <div class="step-num">3</div>
+    <div class="step-num">4</div>
     <div class="step-title">Pilih Metode Pembayaran</div>
   </div>
   <div class="pay-grid" id="payGrid"></div>
@@ -299,14 +321,14 @@
 
 <script>
   // ============================================================
-  //  KONFIGURASI
+  //  KONFIGURASI UTAMA
   // ============================================================
   const CONFIG = {
     namaToko: 'TopUpKu',
-    waAdmin: '6281234567890', // GANTI NOMOR WA ADMIN
+    waAdmin: '6281234567890', // GANTI DENGAN NOMOR WA KAMU
   };
 
-  // Data Game & Produk
+  // DATA GAME & PRODUK
   const GAMES = {
     ml: {
       nama: 'Mobile Legends',
@@ -348,33 +370,33 @@
   ];
 
   // ============================================================
-  //  STATE
+  //  STATE APLIKASI
   // ============================================================
-  let currentGameKey = 'ml'; // default
+  let currentGameKey = 'ml'; // Default game
   let selectedProduk = null;
   let selectedMetode = null;
 
   // ============================================================
-  //  GANTI GAME (TABS)
+  //  FUNGSI GANTI GAME (KARTU)
   // ============================================================
   function gantiGame(key) {
     currentGameKey = key;
     
-    // Update tab active
-    document.getElementById('tab-ml').classList.remove('active');
-    document.getElementById('tab-ff').classList.remove('active');
-    document.getElementById('tab-' + key).classList.add('active');
+    // Update tampilan kartu aktif
+    document.getElementById('card-ml').classList.remove('active');
+    document.getElementById('card-ff').classList.remove('active');
+    document.getElementById('card-' + key).classList.add('active');
 
-    // Reset state
+    // Reset pilihan produk
     selectedProduk = null;
 
-    // Render ulang form akun (ML butuh Zone ID, FF tidak)
+    // Render ulang form (ML pakai Zone, FF tidak)
     renderFormAkun();
     
-    // Render produk
+    // Render ulang produk
     renderProduk();
 
-    // Update summary
+    // Update ringkasan
     updateSummary();
   }
 
@@ -445,7 +467,7 @@
   }
 
   // ============================================================
-  //  PILIH PRODUK
+  //  FUNGSI PILIH PRODUK & METODE
   // ============================================================
   function pilihProduk(p, el) {
     selectedProduk = p;
@@ -454,9 +476,6 @@
     updateSummary();
   }
 
-  // ============================================================
-  //  PILIH METODE
-  // ============================================================
   function pilihMetode(m, el) {
     selectedMetode = m;
     document.querySelectorAll('.pay-method').forEach(x => x.classList.remove('selected'));
@@ -465,7 +484,7 @@
   }
 
   // ============================================================
-  //  UPDATE SUMMARY
+  //  UPDATE RINGKASAN (SUMMARY)
   // ============================================================
   function updateSummary() {
     document.getElementById('sumGame').textContent = GAMES[currentGameKey].nama;
@@ -486,15 +505,12 @@
   }
 
   // ============================================================
-  //  FORMAT RUPIAH
+  //  UTILITAS
   // ============================================================
   function formatRupiah(n) {
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
-  // ============================================================
-  //  TOAST
-  // ============================================================
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -503,7 +519,7 @@
   }
 
   // ============================================================
-  //  PROSES BELI
+  //  PROSES BELI & KIRIM WA
   // ============================================================
   function prosesBeli() {
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
@@ -526,9 +542,6 @@
     document.getElementById('modal').classList.add('show');
   }
 
-  // ============================================================
-  //  KIRIM WHATSAPP
-  // ============================================================
   function kirimWA() {
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
@@ -547,18 +560,15 @@
     tutupModal();
   }
 
-  // ============================================================
-  //  TUTUP MODAL
-  // ============================================================
   function tutupModal() {
     document.getElementById('modal').classList.remove('show');
   }
 
   // ============================================================
-  //  INIT
+  //  INISIALISASI SAAT HALAMAN DIBUKA
   // ============================================================
   renderMetode();
-  gantiGame('ml'); // Load ML pertama kali
+  gantiGame('ml'); // Memuat game default (Mobile Legends)
 </script>
 </body>
 </html>
