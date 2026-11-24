@@ -79,31 +79,24 @@
     position: relative;
     overflow: hidden;
   }
-  .game-card:hover {
-    border-color: var(--purple);
-    transform: translateY(-2px);
-  }
+  .game-card:hover { border-color: var(--purple); transform: translateY(-2px); }
   .game-card.active {
     border-color: var(--purple);
     background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05));
     box-shadow: 0 0 0 2px rgba(139,92,246,0.3);
   }
   .game-card.active::after {
-    content: '✓';
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    color: var(--purple);
-    font-weight: 900;
-    font-size: 16px;
+    content: '✓'; position: absolute; top: 8px; right: 10px;
+    color: var(--purple); font-weight: 900; font-size: 16px;
   }
   .game-icon { font-size: 32px; margin-bottom: 8px; }
   .game-name { font-size: 14px; font-weight: 700; }
 
   /* ===== FORM INPUT ===== */
   .form-group { margin-bottom: 12px; }
-  .form-row { display: flex; gap: 8px; }
-  .form-row .form-group { flex: 1; }
+  .form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .form-row .form-group { flex: 1; min-width: 140px; }
+  .form-row .form-group.full { flex: 100%; }
 
   label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
   input[type="text"] {
@@ -163,7 +156,7 @@
     border-top: 1px dashed var(--border); font-size: 15px; font-weight: 700;
   }
   .summary-row .label { color: var(--muted); }
-  .summary-row .value { font-weight: 700; text-align: right; }
+  .summary-row .value { font-weight: 700; text-align: right; max-width: 60%; word-break: break-all; }
   .summary-row.total .value { color: var(--green); font-size: 18px; }
 
   /* ===== TOMBOL BELI ===== */
@@ -205,6 +198,7 @@
   .modal-icon { font-size: 48px; margin-bottom: 12px; }
   .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
   .modal-text { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; text-align: left; }
+  .modal-text strong { color: var(--text); }
   .modal-btn {
     width: 100%; padding: 12px; background: var(--purple); color: white;
     border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
@@ -401,28 +395,38 @@
   }
 
   // ============================================================
-  //  RENDER FORM AKUN
+  //  RENDER FORM AKUN (DENGAN NICKNAME)
   // ============================================================
   function renderFormAkun() {
     const game = GAMES[currentGameKey];
     const container = document.getElementById('formAkun');
     
     if (game.butuhZone) {
+      // Mobile Legends (User ID, Zone ID, Nickname)
       container.innerHTML = `
-        <div class="form-group">
+        <div class="form-group" style="flex: 1; min-width: 120px;">
           <label>User ID</label>
           <input type="text" id="userId" placeholder="Contoh: 12345678" inputmode="numeric" oninput="updateSummary()">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="flex: 1; min-width: 100px;">
           <label>Zone ID</label>
           <input type="text" id="zoneId" placeholder="Contoh: 1234" inputmode="numeric" oninput="updateSummary()">
         </div>
+        <div class="form-group full">
+          <label>Nickname (Opsional)</label>
+          <input type="text" id="nickname" placeholder="Contoh: ProPlayer" oninput="updateSummary()">
+        </div>
       `;
     } else {
+      // Free Fire (Player ID, Nickname)
       container.innerHTML = `
-        <div class="form-group">
+        <div class="form-group full">
           <label>Player ID / User ID</label>
           <input type="text" id="userId" placeholder="Masukkan ID Free Fire" inputmode="numeric" oninput="updateSummary()">
+        </div>
+        <div class="form-group full">
+          <label>Nickname (Opsional)</label>
+          <input type="text" id="nickname" placeholder="Contoh: SultanFF" oninput="updateSummary()">
         </div>
       `;
     }
@@ -493,10 +497,13 @@
 
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
+    let nick = document.getElementById('nickname') ? document.getElementById('nickname').value.trim() : '';
     
     let target = '—';
     if (uid) {
-      target = uid + (zid ? ` (${zid})` : '');
+      target = uid;
+      if (zid) target += ` (${zid})`;
+      if (nick) target += ` - ${nick}`;
     }
     document.getElementById('sumTarget').textContent = target;
 
@@ -524,13 +531,14 @@
   function prosesBeli() {
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
+    let nick = document.getElementById('nickname') ? document.getElementById('nickname').value.trim() : '';
 
     if (!uid) return showToast('⚠️ User / Player ID wajib diisi!');
     if (!selectedProduk) return showToast('⚠️ Pilih nominal dulu!');
     if (!selectedMetode) return showToast('⚠️ Pilih metode pembayaran!');
 
     const total = formatRupiah(selectedProduk.harga);
-    const target = uid + (zid ? ` (${zid})` : '');
+    let target = uid + (zid ? ` (${zid})` : '') + (nick ? ` - ${nick}` : '');
     
     document.getElementById('modalText').innerHTML = `
       <strong>${GAMES[currentGameKey].nama}</strong><br>
@@ -545,12 +553,13 @@
   function kirimWA() {
     let uid = document.getElementById('userId') ? document.getElementById('userId').value.trim() : '';
     let zid = document.getElementById('zoneId') ? document.getElementById('zoneId').value.trim() : '';
+    let nick = document.getElementById('nickname') ? document.getElementById('nickname').value.trim() : '';
 
     const pesan =
       `Halo ${CONFIG.namaToko}! Saya mau top up:%0A%0A` +
       `🎮 Game: ${GAMES[currentGameKey].nama}%0A` +
       `📦 Produk: ${selectedProduk.nama}%0A` +
-      `🆔 ID: ${uid}${zid ? `%0A🌐 Zone: ${zid}` : ''}%0A` +
+      `🆔 ID: ${uid}${zid ? `%0A🌐 Zone: ${zid}` : ''}${nick ? `%0A👤 Nick: ${nick}` : ''}%0A` +
       `💳 Metode: ${selectedMetode.nama}%0A` +
       `💰 Total: Rp ${formatRupiah(selectedProduk.harga)}%0A%0A` +
       `Mohon diproses ya. Terima kasih!`;
